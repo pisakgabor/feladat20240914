@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Értékelési Felület</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <style>
+        .stars i {
+            font-size: 2rem;
+            color: lightgray;
+            cursor: pointer;
+        }
+        .stars i.filled {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+    <div class="rating-container">
+        Helló Helló Helló
+        <div class="stars">
+            <i class="fa-solid fa-star" data-value="1"></i>
+            <i class="fa-solid fa-star" data-value="2"></i>
+            <i class="fa-solid fa-star" data-value="3"></i>
+            <i class="fa-solid fa-star" data-value="4"></i>
+            <i class="fa-solid fa-star" data-value="5"></i>
+        </div>
+        <textarea id="review-text" placeholder="Írd ide a véleményed (nem kötelező)"></textarea>
+        <button id="submit-review">Beküldés</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.stars i');
+            let rating = 0;
+
+            stars.forEach(star => {
+                star.addEventListener('click', function () {
+                    rating = this.getAttribute('data-value');
+                    stars.forEach(star => star.classList.remove('filled'));
+                    for (let i = 0; i < rating; i++) {
+                        stars[i].classList.add('filled');
+                    }
+                });
+            });
+
+            document.getElementById('submit-review').addEventListener('click', function () {
+                const reviewText = document.getElementById('review-text').value;
+                if (rating) { // Csak az értékelés kötelező
+                    fetch('submit_review.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            rating: rating,
+                            review: reviewText
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert('Értékelés sikeresen elküldve!');
+                        location.reload();
+                    })
+                    .catch(error => console.error('Hiba történt:', error));
+                } else {
+                    alert('Kérjük, adj meg egy értékelést!');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
